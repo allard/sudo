@@ -55,6 +55,14 @@ to run. If the owner is www, you can add this to /etc/sudoers:
 
     end
 
+## Compatibility: ##
+
+Should work on all unix-like operating systems, including Mac OS X.
+
+If rsync is installed, it will be used to reset the test environment between each
+test case. This is much faster than the fallback of rm, cp the fixtures to the 
+test environment.
+
 ## TODO: ##
 
   - There's plenty of more functions that could be implemented like ln, cp, rm, ...
