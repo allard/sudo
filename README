@@ -1,0 +1,49 @@
+# Sudo Rails Plugin #
+
+The sudo module deals with with system files for your rails project.
+
+## Problem: ##
+
+  - The Rails application should not run as root, and sometimes files needs to be installed as root
+  - Everything in rails should be testable, including installing files
+
+## Example: ##
+
+    class Post < ActiveRecord::Base
+    
+      def after_initialize
+        self.data = "some data"
+      end
+    
+      def after_save
+        # The following function will write to:
+        #
+        # in production:  /var/tmp/outfile
+        # in development: Rails.root/tmp/filesystem/development/var/tmp/outfile
+        # in test:        Rails.root/tmp/filesystem/test/var/tmp/outfile
+        #
+        Sudo.write(data, "/var/tmp/outfile", :user => "root", :mode => 600)
+      end
+    
+    end
+
+    class PostTest < ActiveSupport::TestCase
+
+      def setup
+        # This will reset Rails.root/tmp/filesystem/test with
+        # any files from Rails.root/test/fixtures/filesystem
+        Sudo.initialize_test
+      end
+
+      def test_check_outfile
+        # Sudo.read will read from
+        #
+        # in production:  /var/tmp/outfile
+        # in development: Rails.root/tmp/filesystem/development/var/tmp/outfile
+        # in test:        Rails.root/tmp/filesystem/test/var/tmp/outfile
+        #
+        Post.create!
+        assert_equal "some_data", Sudo.read("/var/tmp/outfile")
+      end
+
+    end
